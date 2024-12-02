@@ -40,17 +40,6 @@ Simply run the script:
 python main.py
 ```
 
-This README provides:
-
-- A clear description of what the project does
-- Installation instructions
-- Usage guide
-- Security considerations
-- Requirements information
-- A placeholder for license information
-
-Feel free to customize it further based on your specific needs!
-
 The script will:
 
 1. Read your credentials from the `.env` file
@@ -58,16 +47,6 @@ The script will:
 3. Log in to AWS using cloudopscli
 4. Automatically open the AWS Console URL in your default browser
 
-## Security Notes
-
-- Never commit your `.env` file to version control
-- Keep your 2FA secret key secure
-- Regularly rotate your credentials
-
 ## Requirements
 
 See `requirements.txt` for Python package dependencies.
-
-## License
-
-[Choose an appropriate license]
