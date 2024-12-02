@@ -18,13 +18,13 @@ git clone https://github.com/noxhsxrk/cloudopslogin.git
 cd cloudopslogin
 ```
 
-2. Install the required dependencies:
+2. Install the package and its dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
-3. Create a `.env` file in the project root with your credentials:
+3. Create a `.env` file in your home directory or project directory with your credentials:
 
 ```plaintext
 USERNAME=your_username
@@ -34,10 +34,10 @@ SECRET_KEY=your_2fa_secret_key
 
 ## Usage
 
-Simply run the script:
+After installation, you can run the script from anywhere using:
 
 ```bash
-python main.py
+copslogin
 ```
 
 The script will:
@@ -49,4 +49,7 @@ The script will:
 
 ## Requirements
 
-See `requirements.txt` for Python package dependencies.
+The following Python packages are required and will be automatically installed:
+
+- pyotp
+- python-dotenv
