@@ -14,8 +14,8 @@ This script automates the AWS Console login process using cloudopscli, handling 
 1. Clone this repository:
 
 ```bash
-git clone <repository-url>
-cd <repository-name>
+git clone https://github.com/noxhsxrk/cloudopslogin.git
+cd cloudopslogin
 ```
 
 2. Install the required dependencies:
