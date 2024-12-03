@@ -18,18 +18,18 @@ git clone https://github.com/noxhsxrk/cloudopslogin.git
 cd cloudopslogin
 ```
 
-2. Install the package and its dependencies:
-
-```bash
-pip install -e .
-```
-
-3. Create a `.env` file in your home directory or project directory with your credentials:
+2. Create a `.env` file in your home directory or project directory with your credentials:
 
 ```plaintext
 USERNAME=your_username
 PASSWORD=your_password
 SECRET_KEY=your_2fa_secret_key
+```
+
+3. Install the package and its dependencies:
+
+```bash
+pip install -e .
 ```
 
 ### Finding Your SECRET_KEY
