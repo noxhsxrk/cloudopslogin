@@ -22,21 +22,6 @@ def main():
         print("ERROR: USERNAME or PASSWORD environment variables are not set!")
         exit(1)
 
-    register_process = subprocess.Popen(
-        ["cloudopscli", "register"],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    
-    register_inputs = f"{username}\n{password}\n"
-    register_stdout, register_stderr = register_process.communicate(input=register_inputs)
-    
-    print("Registration STDOUT:", register_stdout)
-    if register_stderr:
-        print("Registration STDERR:", register_stderr)
-
     inputs = f"{username}\n{password}\n{otp}\n"
 
     process = subprocess.Popen(
