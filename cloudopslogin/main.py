@@ -5,7 +5,6 @@ import pexpect
 import logging
 import re
 import sys
-import io
 
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -34,11 +33,10 @@ def main():
     otp = otp.strip()
 
     try:
-        child = pexpect.spawn("cloudopscli login", timeout=30)
+        child = pexpect.spawn("cloudopscli login", encoding='utf-8', timeout=30)
 
-        child.logfile = io.BytesIO()
-        child.interact()
-        
+        child.logfile = sys.stdout
+
         child.expect(re.compile(r"Enter\s+your\s+Company\s+Username", re.IGNORECASE))
         child.sendline(username)
 
@@ -47,12 +45,8 @@ def main():
 
         child.expect(re.compile(r"Enter\s+your\s+6\s+digit\s+OTP", re.IGNORECASE))
         child.sendline(otp)
-    
 
         output = child.before
-
-        if isinstance(output, bytes):
-            output = output.decode('utf-8')
 
         logger.info(f"STDOUT: {output}")
 
