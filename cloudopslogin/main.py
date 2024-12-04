@@ -1,50 +1,65 @@
-import subprocess
 import pyotp
 import os
+from dotenv import load_dotenv
+import pexpect
+import logging
 import re
 import webbrowser
-from dotenv import load_dotenv
+import sys
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def main():
     load_dotenv()
 
     secret_key = os.getenv("SECRET_KEY")
     if secret_key is None:
-        print("ERROR: SECRET_KEY environment variable is not set!")
+        logger.error("SECRET_KEY environment variable is not set!")
         exit(1)
 
     totp = pyotp.TOTP(secret_key)
     otp = totp.now()
+    logger.info(f"Generated OTP: {otp}")
 
     username = os.getenv("USERNAME")
     password = os.getenv("PASSWORD")
     if username is None or password is None:
-        print("ERROR: USERNAME or PASSWORD environment variables are not set!")
+        logger.error("USERNAME or PASSWORD environment variables are not set!")
         exit(1)
 
-    inputs = f"{username}\n{password}\n{otp}\n"
+    username = username.strip()
+    password = password.strip()
+    otp = otp.strip()
 
-    process = subprocess.Popen(
-        ["cloudopscli", "login"],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
+    try:
+        child = pexpect.spawn("cloudopscli login", encoding='utf-8', timeout=30)
 
-    stdout, stderr = process.communicate(input=inputs)
+        child.logfile = sys.stdout
 
-    print("STDOUT:", stdout)
-    if stderr:
-        print("STDERR:", stderr)
+        child.expect(re.compile(r"Enter\s+your\s+Company\s+Username", re.IGNORECASE))
+        child.sendline(username)
 
-    url_match = re.search(r"(https://signin\.aws\.amazon\.com/[^ ]+)", stdout)
-    if url_match:
-        aws_console_url = url_match.group(1)
-        print(f"Opening the URL: {aws_console_url}")
-        webbrowser.open(aws_console_url)
-    else:
-        print("AWS Console URL not found in the output.")
+        child.expect(re.compile(r"Enter\s+the\s+Password\s+of", re.IGNORECASE))
+        child.sendline(password)
+
+        child.expect(re.compile(r"Enter\s+your\s+6\s+digit\s+OTP", re.IGNORECASE))
+        child.sendline(otp)
+
+        child.expect(pexpect.EOF)
+        output = child.before
+
+        logger.info(f"STDOUT: {output}")
+
+    except pexpect.TIMEOUT:
+        logger.error("cloudopscli login process timed out. Consider reviewing the prompts and increasing the timeout duration.")
+        exit(1)
+    except pexpect.EOF:
+        logger.error("Unexpected end of input from cloudopscli.")
+        exit(1)
+    except Exception as e:
+        logger.exception(f"An unexpected error occurred: {e}")
+        exit(1)
 
 if __name__ == "__main__":
     main()

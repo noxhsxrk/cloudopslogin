@@ -7,6 +7,7 @@ setup(
     install_requires=[
         "pyotp",
         "python-dotenv",
+        "pexpect",
     ],
     entry_points={
         'console_scripts': [
