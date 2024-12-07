@@ -1,3 +1,4 @@
+import subprocess
 import pyotp
 import os
 from dotenv import load_dotenv
@@ -5,6 +6,7 @@ import pexpect
 import logging
 import re
 import sys
+import time
 
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -20,7 +22,6 @@ def main():
 
     totp = pyotp.TOTP(secret_key)
     otp = totp.now()
-    logger.info(f"Generated OTP: {otp}")
 
     username = os.getenv("USERNAME")
     password = os.getenv("PASSWORD")
@@ -37,7 +38,22 @@ def main():
 
         child.logfile = sys.stdout
 
-        child.expect(re.compile(r"Enter\s+your\s+Company\s+Username", re.IGNORECASE))
+        index = child.expect([
+            re.compile(r"Enter\s+your\s+Company\s+Username", re.IGNORECASE),
+            re.compile(r"Token\s+is\s+still\s+valid", re.IGNORECASE)
+        ])
+
+        if index == 1:
+            logger.info("Token is still valid. Exiting.")
+            process = subprocess.Popen(
+            ["cloudopscli", "login"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+            )
+            process.stdin.flush()
+
         child.sendline(username)
 
         child.expect(re.compile(r"Enter\s+the\s+Password\s+of", re.IGNORECASE))
@@ -46,7 +62,21 @@ def main():
         child.expect(re.compile(r"Enter\s+your\s+6\s+digit\s+OTP", re.IGNORECASE))
         child.sendline(otp)
 
+        time.sleep(2) 
+        
+        child.close()
+
         output = child.before
+        
+        process = subprocess.Popen(
+            ["cloudopscli", "login"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+            )
+        process.stdin.flush()
+        child.close()
 
         logger.info(f"STDOUT: {output}")
 
